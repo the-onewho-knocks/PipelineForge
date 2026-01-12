@@ -8,76 +8,40 @@ import (
 )
 
 type Repo struct {
-	pool *pgxpool.Pool
+	db *pgxpool.Pool
 }
 
-func New(pool *pgxpool.Pool) *Repo {
-	return &Repo{
-		pool: pool,
-	}
+func New(db *pgxpool.Pool) *Repo {
+	return &Repo{db: db}
 }
 
-func (r *Repo) Save(ctx context.Context,
-	repo storage.RepositoryRecord) error {
+func (r *Repo) SaveTrendingRepo(ctx context.Context, repo storage.TrendingRepo) error {
+	query := `
+		INSERT INTO trending_repositories (
+			author, name, url, language,
+			stars, forks, today_stars, scraped_at
+		)
+		VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+		ON CONFLICT (author, name, scraped_at)
+		DO NOTHING
+	`
 
-	_, err := r.pool.Exec(ctx, `
-			insert into trending_repositories(
-			author,
-			name,
-			url,
-			description,
-			language,
-			stars,
-			forks,
-			today_stars
-			)
-			VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
-			ON CONFLICT (author, name) DO UPDATE SET
-				stars = EXCLUDED.stars,
-				forks = EXCLUDED.forks,
-				today_stars = EXCLUDED.today_stars,
-				description = EXCLUDED.description,
-				language = EXCLUDED.language
-		`,
+	_, err := r.db.Exec(
+		ctx,
+		query,
 		repo.Author,
 		repo.Name,
 		repo.URL,
-		repo.Description,
 		repo.Language,
 		repo.Stars,
 		repo.Forks,
 		repo.TodayStars,
+		repo.ScrapedAt,
 	)
 
 	return err
 }
 
-func(r *Repo) List(
-	ctx context.Context , 
-	limit int,
-	) ([]storage.Repository,error){
-
-		rows , err := r.pool.Query(
-			ctx ,
-			`SELECT 
-				author,
-				name,
-				url,
-				description,
-				language,
-				stars,
-				forks,
-				today_stars
-			FROM trending_repositories
-			ORDER BY stars DESC 
-			LIMIT $1`,limit)
-
-			if err != nil {
-				return nil , err
-			}
-			defer rows.Close()
-
-			var repos []storage.RepositoryRecord
-
-			
-	}
+func (r *Repo) Close() {
+	r.db.Close()
+}

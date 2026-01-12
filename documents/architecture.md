@@ -8,8 +8,8 @@ PipelineForge/
 │
 ├── internal/
 │   ├── scraper/
-│   │   ├── scraper.go
-│   │   └── scraper_test.go
+│   │   ├── github.go
+│   │   └── github_test.go
 │   │
 │   ├── queue/
 │   │   ├── message.go           # Shared RabbitMQ message contract
