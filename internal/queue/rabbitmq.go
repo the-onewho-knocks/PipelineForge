@@ -6,6 +6,7 @@ import (
 	"github.com/rabbitmq/amqp091-go"
 )
 
+//connection to rabbitMQ queueing is done here
 type RabbitMQ struct {
 	Conn    *amqp091.Connection
 	Channel *amqp091.Channel
