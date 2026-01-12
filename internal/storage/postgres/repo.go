@@ -51,3 +51,33 @@ func (r *Repo) Save(ctx context.Context,
 
 	return err
 }
+
+func(r *Repo) List(
+	ctx context.Context , 
+	limit int,
+	) ([]storage.Repository,error){
+
+		rows , err := r.pool.Query(
+			ctx ,
+			`SELECT 
+				author,
+				name,
+				url,
+				description,
+				language,
+				stars,
+				forks,
+				today_stars
+			FROM trending_repositories
+			ORDER BY stars DESC 
+			LIMIT $1`,limit)
+
+			if err != nil {
+				return nil , err
+			}
+			defer rows.Close()
+
+			var repos []storage.RepositoryRecord
+
+			
+	}

@@ -24,9 +24,13 @@ type Repository struct {
 	TodayStars  int
 }
 
+var (
+	spaceRe       = regexp.MustCompile(`\s+`)
+	todayStarsRe = regexp.MustCompile(`([\d,]+)`)
+)
+
 func cleanText(text string) string {
-	re := regexp.MustCompile(`\s+`)
-	return strings.TrimSpace(re.ReplaceAllString(text, " "))
+	return strings.TrimSpace(spaceRe.ReplaceAllString(text, " "))
 }
 
 func parseNumber(text string) int {
@@ -36,8 +40,8 @@ func parseNumber(text string) int {
 }
 
 // scrapeFromReader allows testing without HTTP
-func scrapeFromReader(rdr *strings.Reader) ([]Repository, error) {
-	doc, err := goquery.NewDocumentFromReader(rdr)
+func scrapeFromReader(r io.Reader) ([]Repository, error) {
+	doc, err := goquery.NewDocumentFromReader(r)
 	if err != nil {
 		return nil, err
 	}
@@ -82,8 +86,7 @@ func scrapeFromReader(rdr *strings.Reader) ([]Repository, error) {
 		s.Find("span").Each(func(_ int, span *goquery.Selection) {
 			text := cleanText(span.Text())
 			if strings.Contains(text, "stars today") {
-				re := regexp.MustCompile(`([\d,]+)`)
-				if m := re.FindStringSubmatch(text); len(m) > 1 {
+				if m := todayStarsRe.FindStringSubmatch(text); len(m) > 1 {
 					repo.TodayStars = parseNumber(m[1])
 				}
 			}
@@ -102,7 +105,9 @@ func scrapeFromReader(rdr *strings.Reader) ([]Repository, error) {
 func ScrapeTrendingRepos(ctx context.Context, timeRange string) ([]Repository, error) {
 	url := fmt.Sprintf("https://github.com/trending?since=%s", timeRange)
 
-	client := &http.Client{Timeout: 10 * time.Second}
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
@@ -117,10 +122,9 @@ func ScrapeTrendingRepos(ctx context.Context, timeRange string) ([]Repository, e
 	}
 	defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status: %s", resp.Status)
 	}
 
-	return scrapeFromReader(strings.NewReader(string(body)))
+	return scrapeFromReader(resp.Body)
 }
