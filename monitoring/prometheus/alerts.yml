@@ -1,0 +1,56 @@
+groups:
+#when database insers are > 150
+- name: pipelineforge-alerts
+  rules:
+
+  - alert: PipelineForgeHighDBInsertRate
+    expr: increase(pipelineforge_postgres_inserts_total[5m]) > 150
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High DB insert volume detected"
+      description: "More than 150 database inserts occurred in the last 5 minutes."
+      
+# Worker is down
+  - alert: PipelineForgeWorkerDown
+    expr: up{job="pipelineforge-worker"} == 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "PipelineForge worker is DOWN"
+      description: "Prometheus cannot scrape the worker metrics endpoint."
+
+  # No messages processed recently
+  - alert: PipelineForgeNoMessagesProcessed
+    expr: rate(pipelineforge_worker_messages_consumed_total[5m]) == 0
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: "No messages processed"
+      description: "Worker is running but no messages were processed in the last 5 minutes."
+
+  #Database errors detected
+  - alert: PipelineForgeDatabaseErrors
+    expr: increase(pipelineforge_postgres_errors_total[5m]) > 0
+    for: 1m
+    labels:
+      severity: critical
+    annotations:
+      summary: "Database errors detected"
+      description: "Worker encountered database errors while inserting data."
+
+  #High message processing latency (p95)
+  - alert: PipelineForgeHighLatency
+    expr: histogram_quantile(
+            0.95,
+            rate(pipelineforge_worker_message_processing_seconds_bucket[5m])
+          ) > 0.5
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "High message processing latency"
+      description: "p95 latency is above 500ms."
