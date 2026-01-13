@@ -1,6 +1,6 @@
 {
-  "uid": "pipelineforge",
-  "title": "PipelineForge – GitHub Trending Pipeline",
+  "uid": "pipelineforge-full",
+  "title": "PipelineForge – Pipeline & GitHub Intelligence",
   "timezone": "browser",
   "schemaVersion": 38,
   "version": 1,
@@ -11,10 +11,7 @@
       "title": "Messages Consumed",
       "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
       "targets": [
-        {
-          "expr": "pipelineforge_worker_messages_consumed_total",
-          "refId": "A"
-        }
+        { "expr": "pipelineforge_worker_messages_consumed_total", "refId": "A" }
       ]
     },
     {
@@ -22,10 +19,7 @@
       "title": "DB Inserts",
       "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
       "targets": [
-        {
-          "expr": "pipelineforge_postgres_inserts_total",
-          "refId": "A"
-        }
+        { "expr": "pipelineforge_postgres_inserts_total", "refId": "A" }
       ]
     },
     {
@@ -33,21 +27,27 @@
       "title": "DB Errors",
       "gridPos": { "x": 12, "y": 0, "w": 6, "h": 4 },
       "targets": [
-        {
-          "expr": "pipelineforge_postgres_errors_total",
-          "refId": "A"
-        }
+        { "expr": "pipelineforge_postgres_errors_total", "refId": "A" }
       ]
     },
+    {
+      "type": "stat",
+      "title": "Last GitHub Scrape",
+      "gridPos": { "x": 18, "y": 0, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "pipelineforge_github_last_scraped_timestamp", "refId": "A" }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "dateTimeAsIso" }
+      }
+    },
+
     {
       "type": "timeseries",
       "title": "Messages Processed / sec",
       "gridPos": { "x": 0, "y": 4, "w": 12, "h": 6 },
       "targets": [
-        {
-          "expr": "rate(pipelineforge_worker_messages_consumed_total[1m])",
-          "refId": "A"
-        }
+        { "expr": "rate(pipelineforge_worker_messages_consumed_total[1m])", "refId": "A" }
       ]
     },
     {
@@ -55,12 +55,10 @@
       "title": "DB Insert Rate",
       "gridPos": { "x": 12, "y": 4, "w": 12, "h": 6 },
       "targets": [
-        {
-          "expr": "rate(pipelineforge_postgres_inserts_total[1m])",
-          "refId": "A"
-        }
+        { "expr": "rate(pipelineforge_postgres_inserts_total[1m])", "refId": "A" }
       ]
     },
+
     {
       "type": "timeseries",
       "title": "Message Processing Latency (p95)",
@@ -71,6 +69,55 @@
           "refId": "A"
         }
       ]
+    },
+
+    {
+      "type": "stat",
+      "title": "Total GitHub Stars",
+      "gridPos": { "x": 0, "y": 16, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "sum(pipelineforge_github_stars_total)", "refId": "A" }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Repositories Scraped",
+      "gridPos": { "x": 6, "y": 16, "w": 6, "h": 4 },
+      "targets": [
+        { "expr": "sum(pipelineforge_github_repos_total)", "refId": "A" }
+      ]
+    },
+
+    {
+      "type": "timeseries",
+      "title": "Repositories by Language",
+      "gridPos": { "x": 12, "y": 16, "w": 12, "h": 6 },
+      "targets": [
+        {
+          "expr": "sum by (language) (pipelineforge_github_repos_total)",
+          "refId": "A"
+        }
+      ]
+    },
+
+    {
+      "type": "table",
+      "title": "Top Repositories by Stars",
+      "gridPos": { "x": 0, "y": 22, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "topk(10, pipelineforge_github_repo_stars)", "refId": "A" }
+      ],
+      "options": { "showHeader": true }
+    },
+
+    {
+      "type": "table",
+      "title": "Fastest Growing Repositories (Today Stars)",
+      "gridPos": { "x": 12, "y": 22, "w": 12, "h": 8 },
+      "targets": [
+        { "expr": "topk(10, pipelineforge_github_repo_today_stars)", "refId": "A" }
+      ],
+      "options": { "showHeader": true }
     }
   ]
 }

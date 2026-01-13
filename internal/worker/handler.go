@@ -2,9 +2,11 @@ package worker
 
 import (
 	"context"
+	"time"
+
+	"pipelineforge/internal/metrics"
 	"pipelineforge/internal/queue"
 	"pipelineforge/internal/storage"
-	"time"
 )
 
 type Handler struct {
@@ -16,7 +18,17 @@ func NewHandler(repo storage.Repository) *Handler {
 }
 
 func (h *Handler) Handle(ctx context.Context, msg queue.TrendingRepoMessage) error {
-	return h.repo.SaveTrendingRepo(ctx, storage.TrendingRepo{
+	metrics.RecordGithubRepo(
+		msg.Author,
+		msg.Name,
+		msg.Language,
+		msg.URL,
+		msg.Stars,
+		msg.Forks,
+		msg.TodayStars,
+	)
+
+	err := h.repo.SaveTrendingRepo(ctx, storage.TrendingRepo{
 		Author:     msg.Author,
 		Name:       msg.Name,
 		URL:        msg.URL,
@@ -26,4 +38,13 @@ func (h *Handler) Handle(ctx context.Context, msg queue.TrendingRepoMessage) err
 		TodayStars: msg.TodayStars,
 		ScrapedAt:  msg.ScrapedAt.Format(time.RFC3339),
 	})
+
+	if err != nil {
+		metrics.DBErrors.Inc()
+		return err
+	}
+
+	metrics.DBInserts.Inc()
+	metrics.MarkScrapeDone()
+	return nil
 }
