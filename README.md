@@ -79,15 +79,55 @@ Below is a high-level overview of the system architecture:
 6) Grafana visualizes system health
 
 ## Observability
+
 ### Dashboards
-https://cdn.discordapp.com/attachments/1460311264327631012/1460597009361932381/image.png?ex=69677e77&is=69662cf7&hm=fc1d1b31055dd1a44ec94dac8db027229519bce5978fe9088c9a498d45005e97&
-1) Scraper throughput
-2) Queue consumption rate
-3) Database write rate
-4) System health overview
+<img width="1919" height="962" alt="Screenshot 2026-01-13 170046" src="https://github.com/user-attachments/assets/6d9982db-477e-4f3b-9f8d-c86f113cb3f4" />
+<img width="1919" height="957" alt="Screenshot 2026-01-13 170108" src="https://github.com/user-attachments/assets/0e0be778-542e-451c-a426-2240f148845c" />
+
+#### Metrics
+1) Total repositories scraped
+2) Messages published to RabbitMQ
+3) Messages consumed by workers
+4) Database insert count
+5) Processing latency
+6) Error and failure counts
 
 ### Alerts
-1) High database insert rate
-2) Consumer lag detection
-3) Abnormal error spikes
 
+<img width="1919" height="965" alt="Screenshot 2026-01-12 221054" src="https://github.com/user-attachments/assets/223d40fb-54b3-4f1f-8eae-873b78e6632f" />
+
+#### Alerts type
+1) High database insert rate
+2) PipelineForge worker is down
+3) No message processed
+4) Database errors detected
+5) High message processing latency
+
+## Getting Started
+### Prerequisites
+1) Go 1.21+
+2) RabbitMQ
+3) PostgreSQL
+4) Prometheus
+5) Grafana
+6) Git
+
+### Clone the Repository
+```
+git clone https://github.com/yourusername/PipelineForge.git
+cd PipelineForge
+```
+
+### Run the Services
+```
+go mod tidy
+go run cmd/scraper/main.go
+go run cmd/worker/main.go
+```
+Ensure RabbitMQ, PostgreSQL, Prometheus, and Grafana are running locally.
+
+## Author
+**Hardik Borse** | [LinkedIn](https://www.linkedin.com/in/hardik-borse-aa7729324/) | [Email](mailto:borsehardik@gmail.com)
+
+## License
+This project is licensed under the **Apache License 2.0**.
