@@ -22,7 +22,7 @@ The project demonstrates how real-world data pipelines are built, monitored, and
 - [Core Design Principles](#core-design-principles)
 - [Technology Stack](#technology-stack)
 - [System Components](#system-components)
-- [API Design & Routes](#api-design--routes)
+- [Observability](#Observability--routes)
 - [Getting Started](#getting-started)
 - [Author](#author)
 - [License](#license)
