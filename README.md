@@ -82,6 +82,7 @@ Below is a high-level overview of the system architecture:
 
 ### Dashboards
 <img width="1919" height="962" alt="Screenshot 2026-01-13 170046" src="https://github.com/user-attachments/assets/6d9982db-477e-4f3b-9f8d-c86f113cb3f4" />
+<br/><br/>
 <img width="1919" height="957" alt="Screenshot 2026-01-13 170108" src="https://github.com/user-attachments/assets/0e0be778-542e-451c-a426-2240f148845c" />
 
 #### Metrics
